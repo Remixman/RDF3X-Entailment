@@ -28,7 +28,7 @@ void updateTripleWithRule(const char *ruleFile, std::function<void(std::string &
 int main()
 {
     const clock_t beginLoad = clock();
-    loadData(DATABASE_NAME, "./data/peel.rdf");
+    loadData(DATABASE_NAME, "./data/dbpedia_2016-10.nt");
     const clock_t endLoad = clock();
     std::cout << "START TIME DATA SIZE : " << getFileSize(DATABASE_NAME) << "\n";
 

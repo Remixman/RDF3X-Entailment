@@ -1,2 +1,2 @@
 entail: entailment.cpp
-	g++ -O3 entailment.cpp -o entail
+	g++ -std=c++11 -O3 entailment.cpp -o entail
