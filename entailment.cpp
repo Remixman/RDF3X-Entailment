@@ -29,9 +29,11 @@ int main()
 {
     const clock_t beginLoad = clock();
     loadData(DATABASE_NAME, "./data/dbpedia_2016-10.nt");
+    // loadData(DATABASE_NAME, "./data/peel.nt");
     const clock_t endLoad = clock();
     std::cout << "START TIME DATA SIZE : " << getFileSize(DATABASE_NAME) << "\n";
 
+    const clock_t beginAll = clock();
     size_t fileSize = getFileSize(DATABASE_NAME);
     size_t origFileSize = fileSize;
     while (true) {
@@ -48,10 +50,13 @@ int main()
     updateTripleWithRule("rule9sparql", generateRule9Triple);
     updateTripleWithRule("rule11.sparql", generateRule11Triple);
 
+    const clock_t endAll = clock();
+
     std::cout << "FINISH TIME DATA SIZE : " << getFileSize(DATABASE_NAME) << "\n";
 
     std::cout << "======================================================================\n";
-    std::cout << "LOADING DATA TIME : " << double(endLoad-beginLoad)/CLOCKS_PER_SEC << "\n";
+    std::cout << "LOADING DATA TIME   : " << double(endLoad-beginLoad)/CLOCKS_PER_SEC << "\n";
+    std::cout << "OVERALL ENTAIL TIME : " << double(endAll-beginAll)/CLOCKS_PER_SEC << "\n";
     std::cout << "======================================================================\n";
 
     return 0; 
@@ -99,7 +104,12 @@ void updateTripleWithRule(const char *ruleFile, std::function<void(std::string &
     char queryCmd[100] = RDF3X_QUERY;
     strcat(queryCmd, " ");  strcat(queryCmd, DATABASE_NAME);
     strcat(queryCmd, " ");  strcat(queryCmd, ruleFile);
-    std::string output = exec(queryCmd); 
+    std::string output = exec(queryCmd);
+
+    if (output == "<empty result>\n") {
+        std::cout << "GENERATED TRIPLE FROM " << ruleFile << " : 0\n";
+        return;
+    }
 
     std::vector<std::string> triples;
     std::string delim = "\n";
@@ -108,8 +118,8 @@ void updateTripleWithRule(const char *ruleFile, std::function<void(std::string &
     auto end = output.find(delim);
     while (end != std::string::npos)
     {
-        std::string result = output.substr(start, end - start); // std::cout << result << "\n";
-        generateTripleFunction(result); // std::cout << result << "\n\n";
+        std::string result = output.substr(start, end - start); //std::cout << result << "\n";
+        generateTripleFunction(result); //std::cout << result << "\n";
         
         triples.push_back(result);
         start = end + delim.length();
